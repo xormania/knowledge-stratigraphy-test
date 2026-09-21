@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0.0",
+  "description": "Target definition. Harness and model are independent free-form dimensions.",
+  "target": {
+    "id": "string",
+    "label": "string",
+    "harness": {
+      "name": "string",
+      "mode": "cli|desktop|web|api|other",
+      "requested_version": "string|null",
+      "executable": "string|null"
+    },
+    "model": {
+      "provider": "string|null",
+      "family": "string|null",
+      "requested_label": "string",
+      "requested_model_id": "string|null",
+      "requested_reasoning": "string|null"
+    },
+    "runtime": {
+      "adapter": "manual|command|native|custom",
+      "transport": "interactive|stdin|argv|file|rpc|http|manual|other",
+      "clean_working_directory_required": true,
+      "command_template": [
+        "string"
+      ],
+      "notes": [
+        "string"
+      ]
+    },
+    "isolation_defaults": {
+      "web_enabled": "true|false|unknown",
+      "tools_enabled": "true|false|unknown",
+      "files_available": "true|false|unknown",
+      "project_context_available": "true|false|unknown",
+      "persistent_memory_enabled": "true|false|unknown"
+    },
+    "tags": [
+      "string"
+    ],
+    "enabled": true,
+    "notes": [
+      "string"
+    ]
+  }
+}
