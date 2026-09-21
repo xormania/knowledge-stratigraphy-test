@@ -1,0 +1,153 @@
+{
+  "schema_version": "1.0.0",
+  "targets": [
+    {
+      "id": "claude-code-fable",
+      "label": "Claude Code / Fable",
+      "harness": {
+        "name": "Claude Code",
+        "mode": "cli",
+        "requested_version": null,
+        "executable": "claude"
+      },
+      "model": {
+        "provider": "Anthropic",
+        "family": "Fable",
+        "requested_label": "Fable",
+        "requested_model_id": null,
+        "requested_reasoning": null
+      },
+      "runtime": {
+        "adapter": "manual",
+        "transport": "interactive",
+        "clean_working_directory_required": true,
+        "command_template": [],
+        "notes": [
+          "Record exact model/client identifiers at run time."
+        ]
+      },
+      "isolation_defaults": {
+        "web_enabled": "unknown",
+        "tools_enabled": "unknown",
+        "files_available": "unknown",
+        "project_context_available": "unknown",
+        "persistent_memory_enabled": "unknown"
+      },
+      "tags": [
+        "example"
+      ],
+      "enabled": true,
+      "notes": []
+    },
+    {
+      "id": "claude-code-opus",
+      "label": "Claude Code / Opus",
+      "harness": {
+        "name": "Claude Code",
+        "mode": "cli",
+        "requested_version": null,
+        "executable": "claude"
+      },
+      "model": {
+        "provider": "Anthropic",
+        "family": "Opus",
+        "requested_label": "Opus",
+        "requested_model_id": null,
+        "requested_reasoning": null
+      },
+      "runtime": {
+        "adapter": "manual",
+        "transport": "interactive",
+        "clean_working_directory_required": true,
+        "command_template": [],
+        "notes": []
+      },
+      "isolation_defaults": {
+        "web_enabled": "unknown",
+        "tools_enabled": "unknown",
+        "files_available": "unknown",
+        "project_context_available": "unknown",
+        "persistent_memory_enabled": "unknown"
+      },
+      "tags": [
+        "example"
+      ],
+      "enabled": true,
+      "notes": []
+    },
+    {
+      "id": "codex-chatgpt",
+      "label": "Codex / ChatGPT",
+      "harness": {
+        "name": "Codex",
+        "mode": "cli",
+        "requested_version": null,
+        "executable": "codex"
+      },
+      "model": {
+        "provider": "OpenAI",
+        "family": "ChatGPT",
+        "requested_label": "ChatGPT",
+        "requested_model_id": null,
+        "requested_reasoning": null
+      },
+      "runtime": {
+        "adapter": "manual",
+        "transport": "interactive",
+        "clean_working_directory_required": true,
+        "command_template": [],
+        "notes": [
+          "Example target; use the exact model label/ID supported by the installed harness."
+        ]
+      },
+      "isolation_defaults": {
+        "web_enabled": "unknown",
+        "tools_enabled": "unknown",
+        "files_available": "unknown",
+        "project_context_available": "unknown",
+        "persistent_memory_enabled": "unknown"
+      },
+      "tags": [
+        "example"
+      ],
+      "enabled": true,
+      "notes": []
+    },
+    {
+      "id": "grok-build-grok",
+      "label": "Grok Build / Grok",
+      "harness": {
+        "name": "Grok Build",
+        "mode": "cli",
+        "requested_version": null,
+        "executable": "grok"
+      },
+      "model": {
+        "provider": "xAI",
+        "family": "Grok",
+        "requested_label": "Grok",
+        "requested_model_id": null,
+        "requested_reasoning": null
+      },
+      "runtime": {
+        "adapter": "manual",
+        "transport": "interactive",
+        "clean_working_directory_required": true,
+        "command_template": [],
+        "notes": []
+      },
+      "isolation_defaults": {
+        "web_enabled": "unknown",
+        "tools_enabled": "unknown",
+        "files_available": "unknown",
+        "project_context_available": "unknown",
+        "persistent_memory_enabled": "unknown"
+      },
+      "tags": [
+        "example"
+      ],
+      "enabled": true,
+      "notes": []
+    }
+  ]
+}
