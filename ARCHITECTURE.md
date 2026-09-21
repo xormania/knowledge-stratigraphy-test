@@ -1,24 +1,12 @@
 # Architecture
 
-Knowledge Stratigraphy Test is organized around **four independent layers**.
+Knowledge Stratigraphy Test is organized around **six independent layers**.
 
 ## 1. Method
 
-The method defines how to infer an effective knowledge frontier from repeated closed-book probes.
+Defines how to estimate an effective knowledge frontier from repeated closed-book probes.
 
-It is domain-agnostic.
-
-A probe pack can target:
-
-- developer culture;
-- scientific discoveries;
-- niche software releases;
-- legal/regulatory changes;
-- obscure product behavior;
-- community terminology;
-- any other dated body of public knowledge.
-
-The framework does not assume that "knowledge" came from pretraining. It measures effective availability under controlled conditions.
+It is domain-, harness-, provider-, and model-agnostic.
 
 ## 2. Probe packs
 
@@ -26,95 +14,140 @@ A probe pack is disposable experimental content.
 
 Each pack should:
 
-- hold its subject domain as constant as practical;
+- keep its subject domain as constant as practical;
 - contain multiple dated strata;
 - prefer relational knowledge over trivia;
 - include negative controls;
-- record source evidence separately from prompts;
-- carry explicit contamination state;
+- preserve source evidence separately from prompts;
+- carry contamination state;
 - be versioned.
 
-The current Codex/Tibo material belongs here, not in the core design.
+A probe pack must not depend on a particular harness or model.
 
-## 3. Telemetry
+## 3. Targets
 
-Every probe execution should emit one append-only trial record.
+A target describes where a pack is tested:
 
-Telemetry exists for two reasons:
+```text
+Target = Harness × Requested Model × Runtime
+```
 
-1. **experimental reproducibility** — reconstruct exactly what was tested, where, when, and under what isolation conditions;
-2. **test improvement** — identify which probes discriminate routes, which are noisy, which hallucination controls are weak, and which have become contaminated.
+Harness and model are free-form dimensions.
 
-The canonical telemetry shape is in:
+A target set enumerates valid combinations for one experiment. It is not assumed that every harness supports every model.
 
-`schemas/telemetry.schema.example.json`
+Target configuration records **requested** identity only.
 
-JSONL is recommended for raw run capture because it is append-only, diffable, streamable, and easy to ingest into SQLite later.
+## 4. Adapters
 
-## 4. Analysis
+Adapters execute a target.
 
-Analysis should operate on telemetry rather than hand-written conclusions.
+The universal baseline is `manual`, which works with any harness/model immediately.
+
+Optional adapters can automate harness-specific mechanics such as:
+
+- clean session creation;
+- model/reasoning selection;
+- prompt injection;
+- response capture;
+- native version/model metadata;
+- latency and token capture.
+
+Adapter capability must not leak into probe semantics.
+
+The confirmed `xormania/multi-harness-proof` repository is the reference for proven Codex, Claude Code, and Grok Build execution mechanics. Its lessons are reused without coupling this framework to its coordination objective.
+
+## 5. Telemetry
+
+Every probe execution emits one append-only trial record.
+
+Telemetry preserves separately:
+
+```text
+requested harness/model/runtime
+observed harness/model/runtime evidence
+isolation state
+prompt/response
+score/calibration
+comparison metadata
+```
+
+Unknown observations stay unknown.
+
+JSONL is recommended for raw trial capture.
+
+## 6. Analysis
+
+Analysis operates on telemetry, not hand-written conclusions.
 
 Useful derived metrics include:
 
 - recognition rate by stratum;
-- negative-control rejection rate;
-- variance across cold sessions;
-- surface/client disagreement;
-- route separation score;
+- negative-control rejection;
+- within-target variance;
+- between-target separation;
+- harness effects;
+- model effects;
+- harness × model interaction;
+- requested-vs-observed disagreement;
+- client-version effects;
+- reasoning/effort effects;
 - temporal monotonicity;
-- probe discrimination;
 - contamination drift;
 - calibration quality.
 
-The framework should preserve raw responses so future scoring methods can be applied retroactively.
+# Experiment shape
+
+```text
+sources
+   ↓
+probe pack
+   ↓
+target set ── harness × model × runtime
+   ↓
+repetitions
+   ↓
+blinded execution
+   ↓
+append-only telemetry
+   ↓
+analysis
+   ↓
+probe + target quality metrics
+   ↓
+pack revision / adapter improvement
+```
 
 # Improvement loop
 
-A pack should improve from its own telemetry.
-
 For each probe, track:
 
-- recognition rate by route;
-- between-route separation;
-- within-route variance;
-- false-positive/confabulation rate;
-- average confidence;
-- contamination status;
-- age of probe;
-- source quality;
-- number of repetitions.
+- recognition rate by target;
+- between-target separation;
+- within-target variance;
+- confabulation rate;
+- control rejection;
+- contamination;
+- age/source quality;
+- repetitions.
 
-A probe is valuable when it produces a stable difference between comparison groups without encouraging confabulation.
+For each adapter/target, track:
 
-A probe should be revised or retired when it:
+- successful executions;
+- isolation failures;
+- native identity coverage;
+- requested-vs-observed mismatches;
+- version compatibility;
+- capture completeness.
 
-- becomes famous;
-- is recognized equally by all routes;
-- produces high within-route variance;
-- is easy to infer from wording;
-- depends on ambiguous naming;
-- creates frequent false positives;
-- no longer contributes information beyond neighboring strata.
+This allows both the **questions** and the **execution machinery** to improve from telemetry.
 
-# Future direction
+# Invariants
 
-The long-term artifact should look less like a benchmark and more like a **measurement system**:
-
-```text
-probe sources
-    ↓
-pack builder
-    ↓
-blinded execution
-    ↓
-append-only telemetry
-    ↓
-scoring / analysis
-    ↓
-probe quality metrics
-    ↓
-pack revision / retirement
-```
-
-That allows new domains and new time periods to be added without changing the underlying method.
+1. Harness identity is not model identity.
+2. Requested identity is not observed identity.
+3. Unknown is not inferred.
+4. Probe packs do not encode harness assumptions.
+5. Raw responses are retained.
+6. Raw identity evidence is retained when available.
+7. New harnesses and models must not require schema redesign.
