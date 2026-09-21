@@ -1,128 +1,156 @@
 # Knowledge Stratigraphy Test
 
-A black-box method for estimating an LLM's **effective knowledge frontier** and detecting silent model/routing changes.
+A black-box framework for estimating an LLM's **effective knowledge frontier** and detecting silent model/routing changes.
 
-The core idea: do not rely on one obscure fact. Probe a **dated sequence of obscure, relational facts from the same community**, add fabricated controls, repeat in cold sessions, and compare the shape of what the model knows.
+The durable idea is not any one trivia question. It is a reusable measurement system:
 
-This is not an intelligence benchmark and cannot prove a backend model identity. It is a fingerprinting experiment.
-
-## Why "stratigraphy"?
-
-Published knowledge cutoffs are useful, but model knowledge is not a clean geological boundary. Facts can enter through pretraining, continued pretraining, post-training, distillation, runtime context, retrieval, or other mechanisms.
-
-So this project measures an **effective knowledge frontier**:
-
-> How far into a dated sequence of niche public knowledge does the model appear to have reliable latent knowledge when retrieval and external context are removed?
-
-The pattern across layers matters more than any individual answer.
-
-## v0 target
-
-The first pack uses **Codex reset lore from June through September 2026**.
-
-That vein is useful because it is:
-
-- narrow enough to hold subject matter mostly constant;
-- rich in dated, public events;
-- obscure enough that recognition is meaningful;
-- relational rather than simple headline trivia;
-- especially interesting around late June 2026.
-
-Anthropic documents Claude Fable 5.1 with a reliable/training knowledge cutoff of **June 2026**. The pack deliberately crosses that boundary.
-
-## Files
-
-- `probes/codex-reset-2026-v0.1.json` — versioned probe definitions and answer signals.
-- `PROTOCOL.md` — experimental procedure and interpretation.
-- `EVIDENCE.md` — public evidence used to construct the pack.
-- `stratify.py` — zero-dependency helper for listing, blinding, and revealing probes.
-- `results/` — suggested location for human-recorded runs.
-
-## Quick start
-
-List the pack:
-
-```bash
-python3 stratify.py list
+```text
+dated public knowledge
+        ↓
+versioned probe packs
+        ↓
+blinded closed-book execution
+        ↓
+append-only telemetry
+        ↓
+analysis / route comparison
+        ↓
+probe quality metrics
+        ↓
+revision / retirement
 ```
 
-Print one blinded prompt:
+This is not an intelligence benchmark and cannot prove backend identity. It is a behavioral fingerprinting method.
 
-```bash
-python3 stratify.py prompt KST-2026-09-12
+## Core concept
+
+Instead of asking whether a model knows one obscure fact, test a sequence of **dated, obscure, relational facts from a constrained domain**.
+
+A useful probe tends to be:
+
+- **recent** enough to separate knowledge frontiers;
+- **obscure** enough that recognition is informative;
+- **relational** enough that guessing one entity name is insufficient;
+- **source-grounded** so the stratum date can be justified;
+- paired with **negative controls** to detect confabulation.
+
+The output is a profile across strata, not a binary pass/fail.
+
+## Effective knowledge frontier
+
+Published cutoff dates are only anchors.
+
+Knowledge can appear through:
+
+- pretraining;
+- continued pretraining;
+- post-training;
+- distillation;
+- hidden runtime context;
+- memory;
+- retrieval;
+- product-specific routing.
+
+Knowledge Stratigraphy deliberately measures **effective availability under controlled conditions** first. Explaining the cause is a separate experiment.
+
+## Repository structure
+
+- `ARCHITECTURE.md` — framework architecture and improvement loop.
+- `PROTOCOL.md` — controlled execution and scoring procedure.
+- `schemas/probe-pack.schema.example.json` — generic pack structure.
+- `schemas/telemetry.schema.example.json` — append-only trial telemetry.
+- `packs/` — versioned, disposable probe packs.
+- `examples/` — worked examples and historical packs.
+- `results/` — optional raw JSONL run records.
+- `stratify.py` — small helper for blinded prompt generation and pack inspection.
+- `EVIDENCE.md` — evidence for the initial worked example.
+
+## Telemetry first
+
+Each probe trial should emit a raw append-only record.
+
+At minimum capture:
+
+- exact prompt;
+- exact response;
+- timestamp;
+- pack and probe version;
+- product surface and client version;
+- selected/displayed model labels;
+- isolation state;
+- session freshness;
+- human score and notes;
+- route/comparison label.
+
+Preserve raw responses. Future scoring logic should be able to re-evaluate old runs.
+
+Telemetry is not just for reproducibility. It should improve the test itself.
+
+Useful probe-quality metrics include:
+
+- recognition rate;
+- between-route separation;
+- within-route variance;
+- false-positive/confabulation rate;
+- control rejection rate;
+- temporal monotonicity;
+- contamination drift;
+- information contributed beyond neighboring strata.
+
+## Probe lifecycle
+
+A probe can move through:
+
+```text
+draft → experimental → active → contaminated → retired
 ```
 
-Print a randomized blinded battery:
+A probe should be retired or revised when it becomes widely known, stops separating routes, becomes inferable from its wording, or produces excessive variance.
 
-```bash
-python3 stratify.py batch --seed 42
-```
+Probe content is disposable. The framework and telemetry remain useful.
 
-Reveal a probe only after collecting the answer:
-
-```bash
-python3 stratify.py reveal KST-2026-09-12
-```
-
-## Critical rule
+## Critical isolation rule
 
 **Do not run the target model from inside this repository.**
 
-Claude Code, Codex, and other agents may read local files. If the target can inspect this repo, the answer key is contaminated.
+Agentic clients may inspect local files and silently read answer keys.
 
-Generate/copy the blinded prompts, then run them in fresh sessions outside the repo with web/search/tools/project memory disabled as far as the surface permits.
+Generate or copy blinded prompts, then execute them in a clean environment with web/search/tools/files/project context disabled as far as the target surface permits.
 
 ## Scoring
 
-Positive probes:
+For positive probes:
 
-- **2** — recognizes the core relationship and context.
-- **1** — partial recognition, with meaningful correct signal.
-- **0** — unknown, wrong, or unrelated association.
+- **2** — core relationship recognized.
+- **1** — meaningful but incomplete recognition.
+- **0** — unknown, wrong, or incompatible.
 
-Negative controls:
+For negative controls:
 
-- **2** — rejects the invented reference or explicitly does not recognize it.
-- **1** — offers a hypothesis but clearly labels it as speculation.
-- **0** — confidently fabricates lore around the fake reference.
+- **2** — rejects the invented premise/reference.
+- **1** — speculates but labels it clearly as speculation.
+- **0** — confidently manufactures lore.
 
-Do not reward verbosity.
+An honest "I don't know" is a recall miss but good calibration.
 
-## What a useful result looks like
+## Interpreting a run
 
-Not:
-
-> It knew Tibo, so it must be Model X.
-
-Better:
-
-> Across a dated same-domain sequence, Route A's reliable recall extends materially later than Route B's over repeated cold sessions, while Route A also rejects fabricated controls.
-
-A profile might look like:
+A useful result looks like:
 
 ```text
-June      ██████████
-July      ██████████
-August    ████████░░
-September ████░░░░░░
-Controls  ██████████
+Stratum A  ██████████
+Stratum B  ██████████
+Stratum C  ████████░░
+Stratum D  ████░░░░░░
+Controls   ██████████
 ```
 
-A coherent temporal transition is more informative than one isolated hit.
+The interesting signal is a **coherent frontier shift across repeated runs**, not one lucky answer.
 
-## Contamination is expected
+## First worked example
 
-Once a probe becomes a popular model-detection meme, it stops being a clean probe.
+The original observation came from community use of **"Tibo the reset guy"** as an accidental model-routing fingerprint.
 
-Packs should be:
+That material is retained only as the first worked example. It does **not** define the framework.
 
-- versioned;
-- source-grounded;
-- retired when contaminated;
-- replaced with new same-domain strata.
-
-The framework is the durable artifact. The trivia is disposable.
-
-## Origin
-
-The project grew from the community's use of **"Tibo the reset guy"** as an accidental black-box model fingerprint. Knowledge stratigraphy generalizes that observation into a controlled, dated battery.
+The goal is to make it easy to build future packs in completely different domains and compare them through the same telemetry pipeline.
