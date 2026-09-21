@@ -4,23 +4,51 @@ Telemetry is a first-class part of the test.
 
 ## Principle
 
-Store **raw trial events append-only**. Do not replace old scores or responses when the scoring method changes.
+Store **raw trial events append-only**. Preserve enough identity to separate the harness from the requested model and from the model/runtime actually observed.
 
-If a score is corrected later, append a new scoring/review event in a future schema revision rather than erasing the original observation.
+The most important rule is:
+
+> **requested is not observed**
+
+A launch argument, UI selection, alias, or configuration file says what was requested. It is not proof of what backend actually answered.
+
+When native evidence exists, store it separately.
+
+## Target identity
+
+Every trial should preserve three layers:
+
+```text
+HARNESS REQUESTED
+  name / version / mode / executable
+
+MODEL REQUESTED
+  provider / family / label / model ID / reasoning
+
+OBSERVED
+  native harness version / build
+  effective model label / ID
+  effective reasoning
+  route/backend if exposed
+  evidence source + raw evidence
+```
+
+Unknown stays unknown.
+
+This is essential for silent-routing experiments.
 
 ## Why
 
-The interesting questions emerge only after repeated use:
+Repeated use should answer questions such as:
 
-- Which probes actually separate routes?
-- Which probes are noisy?
+- Which probes actually separate models?
+- Which probes separate harness routes even when the selected model label is the same?
+- Does one client version produce a different frontier?
+- Does requested model X sometimes expose different native model IDs?
 - Which controls trigger confabulation?
-- Does one client surface behave differently from another?
 - Does a probe's usefulness decay after publication?
-- Does the apparent frontier move after a product update?
+- Does the apparent frontier move after a harness update?
 - Do old responses score differently under improved rubrics?
-
-Without raw telemetry, those questions cannot be answered retroactively.
 
 ## Raw format
 
@@ -32,6 +60,19 @@ Suggested path:
 
 See `schemas/telemetry.schema.example.json`.
 
+## Comparison dimensions
+
+Do not flatten everything into a single route label. Derive views by:
+
+- model;
+- harness;
+- model × harness;
+- model × harness × client version;
+- requested model vs observed model;
+- reasoning/effort;
+- before/after change event;
+- provider surface.
+
 ## Probe-level derived metrics
 
 For each probe and comparison group, derive:
@@ -42,8 +83,8 @@ For each probe and comparison group, derive:
 - honest-unknown rate;
 - confabulation rate;
 - negative-control rejection rate;
-- within-route variance;
-- between-route separation;
+- within-target variance;
+- between-target separation;
 - score drift over time;
 - contamination state.
 
@@ -55,8 +96,10 @@ Useful pack diagnostics:
 - frontier confidence;
 - temporal monotonicity;
 - control performance;
-- surface disagreement;
-- route separation;
+- harness disagreement;
+- model disagreement;
+- requested-vs-observed identity disagreement;
+- target separation;
 - fraction of probes still clean;
 - effective information per probe.
 
@@ -65,8 +108,8 @@ Useful pack diagnostics:
 A strong probe has:
 
 ```text
-high between-route separation
-+ low within-route variance
+high between-target separation
++ low within-target variance
 + low inference leakage
 + low confabulation
 + low contamination
@@ -74,4 +117,4 @@ high between-route separation
 
 A weak probe has the opposite profile.
 
-That lets future pack maintenance be evidence-driven instead of intuition-driven.
+Raw responses and raw identity evidence should remain available so later analysis can improve without rerunning old experiments.
