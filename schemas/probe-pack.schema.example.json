@@ -1,0 +1,52 @@
+{
+  "schema_version": "1.0.0",
+  "description": "Generic knowledge-stratigraphy probe pack",
+  "pack": {
+    "id": "string",
+    "version": "semver",
+    "title": "string",
+    "status": "draft|experimental|active|contaminated|retired",
+    "domain": "string",
+    "rationale": "string",
+    "anchor_window": {
+      "start": "YYYY-MM-DD|null",
+      "end": "YYYY-MM-DD|null"
+    },
+    "standard_preamble": "string",
+    "created_at": "ISO-8601",
+    "notes": [
+      "string"
+    ]
+  },
+  "probes": [
+    {
+      "id": "string",
+      "observed_date": "YYYY-MM-DD|null",
+      "stratum": "string",
+      "kind": "positive|negative_control|calibration",
+      "prompt": "string",
+      "target_relation": "string",
+      "expected_signals": [
+        "string"
+      ],
+      "tolerated_variants": [
+        "string"
+      ],
+      "disqualifiers": [
+        "string"
+      ],
+      "source_refs": [
+        "string"
+      ],
+      "contamination": {
+        "state": "clean|suspected|contaminated|retired",
+        "first_observed_at": "ISO-8601|null",
+        "reason": "string|null"
+      },
+      "weight": 1,
+      "notes": [
+        "string"
+      ]
+    }
+  ]
+}
