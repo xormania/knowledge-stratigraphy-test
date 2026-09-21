@@ -49,7 +49,7 @@ If cost or friction requires batching, randomize order and treat results as lowe
 
 Recommended minimum:
 
-- 3 cold trials per probe per route;
+- 3 cold trials per probe per target;
 - 5 is better for a small pack.
 
 Record every miss. Do not cherry-pick the most impressive completion.
@@ -117,7 +117,7 @@ With a tiny pack, report the profile directly instead of pretending to statistic
 Example:
 
 ```text
-Route A
+Target A
 2026-06  3/3 recognized
 2026-07  3/3 recognized
 2026-08  2/3 recognized
@@ -129,7 +129,7 @@ controls 3/3 rejected
 
 Evidence for a routing/model knowledge difference becomes more interesting when all are true:
 
-1. the same later strata separate two routes repeatedly;
+1. the same later strata separate two targets repeatedly;
 2. earlier strata are recognized by both;
 3. fabricated controls are rejected by both, or especially by the route with later recall;
 4. the effect survives fresh sessions;
