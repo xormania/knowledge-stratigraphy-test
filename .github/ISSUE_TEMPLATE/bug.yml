@@ -1,0 +1,33 @@
+name: Reproducible bug
+description: Report an observed defect with a minimal reproduction.
+body:
+  - type: markdown
+    attributes:
+      value: Do not post credentials, full transcripts, or security exploit details. Use SECURITY.md for private reporting.
+  - type: input
+    id: version
+    attributes:
+      label: Framework version or commit
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS/Python; harness name/version if relevant; requested and observed model separately. Unknown is a valid observation.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Minimal reproduction
+      description: Exact commands, minimal sanitized input, and steps. State whether it reproduces with mocks.
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Expected and actual behavior
+      description: Include a small sanitized output excerpt or test reference, not just a conclusion.
+    validations:
+      required: true

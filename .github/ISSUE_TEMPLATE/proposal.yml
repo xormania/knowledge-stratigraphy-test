@@ -1,0 +1,30 @@
+name: Capability or adapter proposal
+description: Discuss a useful extension before a broad implementation.
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem and evidence
+      description: Who needs this, what fails or is missing, and what observation supports it?
+    validations:
+      required: true
+  - type: textarea
+    id: reuse
+    attributes:
+      label: Existing capability and smallest change
+      description: What can be reused? Explain any new dependency, adapter, or public API.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance and verification
+      description: Observable behavior, offline mocks/tests, failure cases, and live checks that would remain separate.
+    validations:
+      required: true
+  - type: textarea
+    id: tradeoffs
+    attributes:
+      label: Compatibility, cost, and limitations
+    validations:
+      required: true

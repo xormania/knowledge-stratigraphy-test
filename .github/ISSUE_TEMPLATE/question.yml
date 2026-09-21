@@ -1,0 +1,17 @@
+name: Focused question
+description: Ask about using the framework or interpreting evidence.
+body:
+  - type: textarea
+    id: question
+    attributes:
+      label: Question and context
+      description: What are you trying to understand or accomplish?
+    validations:
+      required: true
+  - type: textarea
+    id: tried
+    attributes:
+      label: What you have read or tried
+      description: Mention relevant documentation, commands, or prior issues. Newcomers are welcome.
+    validations:
+      required: true

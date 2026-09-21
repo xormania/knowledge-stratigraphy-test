@@ -54,3 +54,14 @@ jobs:
             coverage.xml
           retention-days: 14
           if-no-files-found: warn
+  required:
+    name: Framework CI
+    if: ${{ always() }}
+    needs: [offline-tests]
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Require the complete matrix to succeed
+        env:
+          MATRIX_RESULT: ${{ needs.offline-tests.result }}
+        run: test "$MATRIX_RESULT" = success

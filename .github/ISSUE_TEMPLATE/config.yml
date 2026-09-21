@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security reporting
+    url: https://github.com/xormania/knowledge-stratigraphy-test/blob/master/SECURITY.md
+    about: Read this before disclosing security-sensitive details.
+  - name: Contribution and proof requirements
+    url: https://github.com/xormania/knowledge-stratigraphy-test/blob/master/CONTRIBUTING.md
+    about: Small fixes are welcome; evidence requirements scale with the change.

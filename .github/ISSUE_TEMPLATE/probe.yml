@@ -1,0 +1,31 @@
+name: Probe or knowledge-layer proposal
+description: Propose dated, sourced probes or report contamination.
+body:
+  - type: textarea
+    id: knowledge
+    attributes:
+      label: Domain and relation being tested
+      description: State the proposed question and expected relation; distinguish an empirical probe from a synthetic fixture.
+    validations:
+      required: true
+  - type: textarea
+    id: sources
+    attributes:
+      label: Sources and dates
+      description: Primary URLs; event date versus publication date; earliest known public observation. Explain licensing or attribution.
+    validations:
+      required: true
+  - type: textarea
+    id: controls
+    attributes:
+      label: Controls, leakage, and contamination
+      description: Negative controls, ambiguity, clues leaked by the wording, prior publication, and limitations.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Existing trial evidence, or not yet tested
+      description: Distinguish requested versus observed identity and mock versus live evidence. Do not invent a result.
+    validations:
+      required: true
