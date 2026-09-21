@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "raw_text": {
+      "type": "string"
+    },
+    "observed": {
+      "type": "object"
+    },
+    "isolation": {
+      "type": "object",
+      "properties": {
+        "session_fresh": {
+          "enum": [
+            "true",
+            "false",
+            "unknown"
+          ]
+        },
+        "clean_working_directory": {
+          "enum": [
+            "true",
+            "false",
+            "unknown"
+          ]
+        },
+        "web_enabled": {
+          "enum": [
+            "true",
+            "false",
+            "unknown"
+          ]
+        },
+        "tools_enabled": {
+          "enum": [
+            "true",
+            "false",
+            "unknown"
+          ]
+        },
+        "files_available": {
+          "enum": [
+            "true",
+            "false",
+            "unknown"
+          ]
+        },
+        "project_context_available": {
+          "enum": [
+            "true",
+            "false",
+            "unknown"
+          ]
+        },
+        "persistent_memory_enabled": {
+          "enum": [
+            "true",
+            "false",
+            "unknown"
+          ]
+        },
+        "system_context_known": {
+          "enum": [
+            "true",
+            "false",
+            "unknown"
+          ]
+        }
+      },
+      "required": [],
+      "additionalProperties": true
+    },
+    "session_id": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "latency_ms": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "token_usage": {
+      "type": "object",
+      "properties": {
+        "input": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        },
+        "output": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 0
+        }
+      },
+      "required": [],
+      "additionalProperties": true
+    },
+    "mode": {
+      "enum": [
+        "mock",
+        "manual",
+        "live"
+      ]
+    }
+  },
+  "required": [
+    "raw_text",
+    "observed",
+    "isolation",
+    "mode"
+  ],
+  "additionalProperties": true
+}

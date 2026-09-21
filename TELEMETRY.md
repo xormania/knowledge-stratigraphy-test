@@ -1,120 +1,68 @@
-# Telemetry
+# Telemetry and improvement
 
-Telemetry is a first-class part of the test.
+## Version 2 event stream
 
-## Principle
+Each append records `schema_version`, an event UUID, ordered sequence, UTC timestamp,
+event type, payload, previous hash, and current hash. The machine-enforced contract
+is `kst/data/event.schema.json`, validated with JSON Schema Draft 2020-12.
 
-Store **raw trial events append-only**. Preserve enough identity to separate the harness from the requested model and from the model/runtime actually observed.
+Event types are `run.started`, `trial.started`, `trial.finished`, `run.finished`, and
+`score.recorded`. A planned run snapshots the source pack and targets. Each trial
+also carries pack, probe, target, and exact-prompt hashes. Hashes use canonical JSON
+(sorted keys, compact separators, UTF-8, non-finite numbers rejected).
 
-The most important rule is:
+## Separate facts from intent
 
-> **requested is not observed**
+Requested harness/model/runtime and configured isolation intent belong to the trial
+start. The finish carries exact response text and separately observed model, reasoning,
+session, usage, and isolation metadata. CLI defaults for isolation are `unknown`.
+Manual observations without an explicit evidence source are `operator_unverified`.
 
-A launch argument, UI selection, alias, or configuration file says what was requested. It is not proof of what backend actually answered.
+A selected model label is not an observed backend ID. Mock metadata is explicitly
+synthetic. No requested value is promoted into observed identity as a fallback.
 
-When native evidence exists, store it separately.
+## Append-only storage
 
-## Target identity
+The JSONL ledger uses an exclusive lock file to reject concurrent writers. Entries are
+flushed and fsynced. Existing content is validated before an append. Broken JSON,
+missing final newline, invalid schemas, and hash/sequence mismatches fail explicitly.
+The application never silently truncates corrupt data or breaks a stale lock.
 
-Every trial should preserve three layers:
+This protects application-level history and detects accidental changes. It is **not**
+cryptographic authentication, an immutable filesystem, or a distributed transaction
+system. A party with write access could rewrite and rehash the whole ledger. A reader
+racing an active write may see an incomplete tail; retry after the writer completes.
+Each append reads prior events, so this implementation favors small experiments.
 
-```text
-HARNESS REQUESTED
-  name / version / mode / executable
+After a crash, preserve the original before any repair. A leftover lock must only be
+removed after establishing that its writer has stopped. Recovery tooling must produce
+new evidence rather than silently rewriting history.
 
-MODEL REQUESTED
-  provider / family / label / model ID / reasoning
+## Scoring and projections
 
-OBSERVED
-  native harness version / build
-  effective model label / ID
-  effective reasoning
-  route/backend if exposed
-  evidence source + raw evidence
-```
+`score` accepts only a completed trial. The score/assessment pairing is checked against
+positive/control semantics. Each correction adds a new scorer/rubric-versioned event.
+The report uses the latest assessment while retaining every earlier assessment.
 
-Unknown stays unknown.
+Execution failures and unfinished trials remain separate counts. Unscored completions
+are not zeros. Recognition and negative-control rejection have separate metric names.
+Reports group by pack hash, target hash, probe, and execution mode, so mock, manual,
+and live captures are not silently pooled. Rates use scored completions as their
+explicit denominator; show the attempt/completion/scored counts alongside them.
 
-This is essential for silent-routing experiments.
+## Improving the system
 
-## Why
+Use accumulated per-probe observations to investigate discrimination, variance,
+unknowns, fabrication, contamination, and scoring disagreements. Use lifecycle evidence
+to investigate adapter failures and identity-observation gaps. The current reporter
+provides descriptive counts/rates; temporal aggregation, statistical uncertainty,
+contamination drift, and automated probe selection remain extensions, not claimed
+implemented metrics.
 
-Repeated use should answer questions such as:
+## Privacy
 
-- Which probes actually separate models?
-- Which probes separate harness routes even when the selected model label is the same?
-- Does one client version produce a different frontier?
-- Does requested model X sometimes expose different native model IDs?
-- Which controls trigger confabulation?
-- Does a probe's usefulness decay after publication?
-- Does the apparent frontier move after a harness update?
-- Do old responses score differently under improved rubrics?
-
-## Raw format
-
-Use JSONL: one trial per line.
-
-Suggested path:
-
-`results/<run-id>.jsonl`
-
-See `schemas/telemetry.schema.example.json`.
-
-## Comparison dimensions
-
-Do not flatten everything into a single route label. Derive views by:
-
-- model;
-- harness;
-- model × harness;
-- model × harness × client version;
-- requested model vs observed model;
-- reasoning/effort;
-- before/after change event;
-- provider surface.
-
-## Probe-level derived metrics
-
-For each probe and comparison group, derive:
-
-- attempts;
-- mean score;
-- full-recognition rate;
-- honest-unknown rate;
-- confabulation rate;
-- negative-control rejection rate;
-- within-target variance;
-- between-target separation;
-- score drift over time;
-- contamination state.
-
-## Pack-level derived metrics
-
-Useful pack diagnostics:
-
-- latest consistently recognized stratum;
-- frontier confidence;
-- temporal monotonicity;
-- control performance;
-- harness disagreement;
-- model disagreement;
-- requested-vs-observed identity disagreement;
-- target separation;
-- fraction of probes still clean;
-- effective information per probe.
-
-## Improvement heuristic
-
-A strong probe has:
-
-```text
-high between-target separation
-+ low within-target variance
-+ low inference leakage
-+ low confabulation
-+ low contamination
-```
-
-A weak probe has the opposite profile.
-
-Raw responses and raw identity evidence should remain available so later analysis can improve without rerunning old experiments.
+Runs and result data are ignored by Git. Capture is local; nothing is automatically
+uploaded. Exact responses, target snapshots, pack keys, and operator-supplied metadata
+may be sensitive. Do not put credentials in target definitions. Review any logs before
+sharing, and do not give a tested agent access to the controller's logs or answer keys.
+The CI artifact upload contains only synthetic-test JUnit and coverage output.

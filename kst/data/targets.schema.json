@@ -1,0 +1,167 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "minLength": 1
+    },
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "label": {
+            "type": "string",
+            "minLength": 1
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "harness": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              },
+              "mode": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "requested_version": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "executable": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "name"
+            ],
+            "additionalProperties": true
+          },
+          "model": {
+            "type": "object",
+            "properties": {
+              "requested_label": {
+                "type": "string",
+                "minLength": 1
+              },
+              "provider": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "family": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "requested_model_id": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "requested_reasoning": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "requested_label"
+            ],
+            "additionalProperties": true
+          },
+          "runtime": {
+            "type": "object",
+            "properties": {
+              "adapter": {
+                "type": "string",
+                "minLength": 1
+              },
+              "transport": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [],
+            "additionalProperties": true
+          },
+          "isolation_defaults": {
+            "type": "object",
+            "properties": {
+              "web_enabled": {
+                "enum": [
+                  "true",
+                  "false",
+                  "unknown"
+                ]
+              },
+              "tools_enabled": {
+                "enum": [
+                  "true",
+                  "false",
+                  "unknown"
+                ]
+              },
+              "files_available": {
+                "enum": [
+                  "true",
+                  "false",
+                  "unknown"
+                ]
+              },
+              "project_context_available": {
+                "enum": [
+                  "true",
+                  "false",
+                  "unknown"
+                ]
+              },
+              "persistent_memory_enabled": {
+                "enum": [
+                  "true",
+                  "false",
+                  "unknown"
+                ]
+              }
+            },
+            "required": [],
+            "additionalProperties": true
+          }
+        },
+        "required": [
+          "id",
+          "harness",
+          "model"
+        ],
+        "additionalProperties": true
+      }
+    }
+  },
+  "required": [
+    "targets"
+  ],
+  "additionalProperties": true
+}

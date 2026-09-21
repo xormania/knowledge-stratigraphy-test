@@ -1,0 +1,44 @@
+{
+  "targets": [
+    {
+      "id": "mock-a",
+      "label": "Synthetic a",
+      "harness": {
+        "name": "Mock Harness",
+        "mode": "mock"
+      },
+      "model": {
+        "provider": "fixture",
+        "family": "synthetic",
+        "requested_label": "a"
+      },
+      "runtime": {
+        "adapter": "mock",
+        "transport": "in-process",
+        "mock": {
+          "response": "I do not recognize that reference."
+        }
+      }
+    },
+    {
+      "id": "mock-b",
+      "label": "Synthetic b",
+      "harness": {
+        "name": "Mock Harness",
+        "mode": "mock"
+      },
+      "model": {
+        "provider": "fixture",
+        "family": "synthetic",
+        "requested_label": "b"
+      },
+      "runtime": {
+        "adapter": "mock",
+        "transport": "in-process",
+        "mock": {
+          "response": "This is synthetic fixture output, not a real model answer."
+        }
+      }
+    }
+  ]
+}

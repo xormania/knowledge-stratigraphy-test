@@ -1,0 +1,44 @@
+{
+  "pack": {
+    "id": "synthetic-layers",
+    "version": "1.0.0",
+    "status": "synthetic",
+    "domain": "invented regression-test lore",
+    "standard_preamble": "Answer from existing knowledge only. Do not use tools or outside sources. Say when you do not recognize a reference."
+  },
+  "probes": [
+    {
+      "id": "DEMO-LAYER-1",
+      "stratum": "layer-1",
+      "kind": "positive",
+      "prompt": "What does the fictional amber relay carry?",
+      "expected_signals": [
+        "paper boats"
+      ],
+      "source_refs": [],
+      "notes": [
+        "Synthetic fixture; not an empirical knowledge probe."
+      ]
+    },
+    {
+      "id": "DEMO-LAYER-2",
+      "stratum": "layer-2",
+      "kind": "positive",
+      "prompt": "Why does the fictional violet relay ring twice?",
+      "expected_signals": [
+        "to acknowledge a paper boat"
+      ],
+      "source_refs": []
+    },
+    {
+      "id": "DEMO-CONTROL",
+      "stratum": "control",
+      "kind": "negative_control",
+      "prompt": "What is the fictional glass reset tradition?",
+      "expected_signals": [
+        "does not recognize"
+      ],
+      "source_refs": []
+    }
+  ]
+}

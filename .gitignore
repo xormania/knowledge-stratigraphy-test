@@ -1,0 +1,14 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage*
+htmlcov/
+coverage.xml
+junit.xml
+.venv/
+*.egg-info/
+build/
+dist/
+runs/
+results/*
+!results/README.md

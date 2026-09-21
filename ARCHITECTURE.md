@@ -1,153 +1,82 @@
-# Architecture
+# Framework architecture
 
-Knowledge Stratigraphy Test is organized around **six independent layers**.
+## Current implementation
 
-## 1. Method
+`kst.core` owns validation, canonical hashes, target selection, and deterministic plans.
+`kst.adapters` defines the provider boundary. `kst.engine` orchestrates trials against
+that boundary. `kst.telemetry` stores observations and score revisions. `kst.analysis`
+builds projections. `kst.cli` is an interface, not the location of domain behavior.
 
-Defines how to estimate an effective knowledge frontier from repeated closed-book probes.
+Dependencies point toward the core, not toward a vendor SDK. Harness names, providers,
+model families, aliases, and reasoning labels remain ordinary target data.
 
-It is domain-, harness-, provider-, and model-agnostic.
+## Boundary objects
 
-## 2. Probe packs
+**Probe pack:** knowledge content, source/contamination metadata, and scoring signals.
+It describes neither an executor nor a required model.
 
-A probe pack is disposable experimental content.
+**Target:** harness, requested model, runtime adapter, and configured isolation intent.
+The target snapshot is separate from whatever identity the runtime exposes.
 
-Each pack should:
+**Plan:** pack/target content hashes, seed, repetitions, ordered slots, and opaque IDs.
+The plan is controller-side data. Dates, probe IDs, answers, and grading metadata do
+not cross into `ProbeRequest`.
 
-- keep its subject domain as constant as practical;
-- contain multiple dated strata;
-- prefer relational knowledge over trivia;
-- include negative controls;
-- preserve source evidence separately from prompts;
-- carry contamination state;
-- be versioned.
+**Adapter:** owns native I/O, session creation, timeout enforcement, response capture,
+and cleanup. The engine depends on a protocol, not a vendor-specific implementation.
+A registry supplies a new adapter instance for each trial. An unknown adapter produces
+an explicit unsupported result, never a silent substitution.
 
-A probe pack must not depend on a particular harness or model.
+**Capture:** exact answer, execution mode, observed identity, isolation observations,
+optional token/latency fields, and native session identity. Requested identity is
+never copied into observed fields.
 
-## 3. Targets
+**Event:** validated immutable observation. Scoring is another event, not a mutation
+of the response. Reports can be reconstructed from the event stream.
 
-A target describes where a pack is tested:
-
-```text
-Target = Harness × Requested Model × Runtime
-```
-
-Harness and model are free-form dimensions.
-
-A target set enumerates valid combinations for one experiment. It is not assumed that every harness supports every model.
-
-Target configuration records **requested** identity only.
-
-## 4. Adapters
-
-Adapters execute a target.
-
-The universal baseline is `manual`, which works with any harness/model immediately.
-
-Optional adapters can automate harness-specific mechanics such as:
-
-- clean session creation;
-- model/reasoning selection;
-- prompt injection;
-- response capture;
-- native version/model metadata;
-- latency and token capture.
-
-Adapter capability must not leak into probe semantics.
-
-The confirmed `xormania/multi-harness-proof` repository is the reference for proven Codex, Claude Code, and Grok Build execution mechanics. Its lessons are reused without coupling this framework to its coordination objective.
-
-## 5. Telemetry
-
-Every probe execution emits one append-only trial record.
-
-Telemetry preserves separately:
+## Lifecycle
 
 ```text
-requested harness/model/runtime
-observed harness/model/runtime evidence
-isolation state
-prompt/response
-score/calibration
-comparison metadata
+validate → plan → run.started
+                    │
+              trial.started
+                    │
+         preflight → start → submit → close
+                    │
+              trial.finished
+                    │
+               run.finished
+                    │
+           score.recorded (zero or more revisions)
+                    │
+              rebuild report
 ```
 
-Unknown observations stay unknown.
+A timeout, empty output, startup failure, unavailable adapter, or cleanup failure is
+an execution outcome, not a wrong answer. Cancelled runs retain evidence for completed
+work and stop scheduling new trials. A hard kill can leave a started trial unfinished;
+reports expose that state rather than inventing a completion.
 
-JSONL is recommended for raw trial capture.
+## Reuse from the proof project
 
-## 6. Analysis
+The [multi-harness proof](https://github.com/xormania/multi-harness-proof) informs the
+separation of native session identity, requested settings, observed metadata, and
+lifecycle evidence. Its coordination protocol is not imported into this framework.
+Knowledge trials normally need fresh independent sessions, unlike that proof's
+persistent-session coordination objective.
 
-Analysis operates on telemetry, not hand-written conclusions.
+## Extension points
 
-Useful derived metrics include:
+New domains require packs. New model names require target data. Automated support for
+a new harness requires an adapter plus conformance and failure tests. New scoring
+methods append versioned assessments. New analyses consume events rather than changing
+historical observations.
 
-- recognition rate by stratum;
-- negative-control rejection;
-- within-target variance;
-- between-target separation;
-- harness effects;
-- model effects;
-- harness × model interaction;
-- requested-vs-observed disagreement;
-- client-version effects;
-- reasoning/effort effects;
-- temporal monotonicity;
-- contamination drift;
-- calibration quality.
+## Deliberate current boundaries
 
-# Experiment shape
-
-```text
-sources
-   ↓
-probe pack
-   ↓
-target set ── harness × model × runtime
-   ↓
-repetitions
-   ↓
-blinded execution
-   ↓
-append-only telemetry
-   ↓
-analysis
-   ↓
-probe + target quality metrics
-   ↓
-pack revision / adapter improvement
-```
-
-# Improvement loop
-
-For each probe, track:
-
-- recognition rate by target;
-- between-target separation;
-- within-target variance;
-- confabulation rate;
-- control rejection;
-- contamination;
-- age/source quality;
-- repetitions.
-
-For each adapter/target, track:
-
-- successful executions;
-- isolation failures;
-- native identity coverage;
-- requested-vs-observed mismatches;
-- version compatibility;
-- capture completeness.
-
-This allows both the **questions** and the **execution machinery** to improve from telemetry.
-
-# Invariants
-
-1. Harness identity is not model identity.
-2. Requested identity is not observed identity.
-3. Unknown is not inferred.
-4. Probe packs do not encode harness assumptions.
-5. Raw responses are retained.
-6. Raw identity evidence is retained when available.
-7. New harnesses and models must not require schema redesign.
+The shipped executor automates mocks; manual export/capture covers other surfaces.
+Native adapters and native process/transport simulators are subsequent integrations.
+The JSONL ledger is a small-run reference implementation with sequential writes; a
+SQLite store can implement the same event semantics later. It is not a high-throughput
+distributed store. The report provides descriptive rates, not statistical proof of a
+cutoff, route identity, or model ranking.

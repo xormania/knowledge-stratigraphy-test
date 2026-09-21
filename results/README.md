@@ -1,15 +1,11 @@
-# Results
+# Local results
 
-Store run records here if you want them versioned.
+Use `results/<run-id>.jsonl` for manual captures and `runs/<run-name>/events.jsonl`
+for planned mock/native runs. Both locations are ignored by Git except this guide.
 
-Recommended filename:
+The current format is the version 2 event stream described in `TELEMETRY.md`.
+A response is not automatically scored. Append an assessment with `kst score` and
+rebuild a report with `kst report`. Do not edit earlier events to revise a score.
 
-`YYYY-MM-DD_surface_route_label.jsonl`
-
-Each JSON line should contain one trial, for example:
-
-```json
-{"timestamp":"2026-09-21T01:45:00-04:00","surface":"claude-code","client_version":"unknown","model_label":"Fable 5.1","probe_id":"KST-2026-07-TIBO","response":"...","score":2,"notes":"recognized OpenAI/Codex reset association"}
-```
-
-Avoid committing account identifiers, conversation URLs, tokens, or other personal data.
+Exact responses and controller snapshots may contain sensitive material and answer
+keys. Review evidence before sharing. Nothing is uploaded automatically.

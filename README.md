@@ -1,179 +1,140 @@
 # Knowledge Stratigraphy Test
 
-A black-box framework for estimating an LLM's **effective knowledge frontier** and detecting silent model/routing changes.
-
-The framework is intentionally independent of both **harness** and **model**.
+**A reusable measurement framework, independent of today's models and harnesses.**
 
 ```text
-Probe Pack × Target Set × Repetitions
+Probe pack × Target set × Repetitions
+                 │
+          Harness × Model × Runtime
+                 │
+       Blinded execution through an adapter
+                 │
+      Append-only observations and scores
+                 │
+       Rebuildable comparison reports
 ```
 
-where:
+The project investigates effective knowledge differences and possible routing changes.
+It does not identify a backend or infer a training cutoff from a single answer.
 
-```text
-Target = Harness × Requested Model × Runtime
-```
+## Foundation status — 0.2.0
 
-So the same pack can be tested through Claude Code, Codex, Grok Build, a web app, an API client, or a future harness, using ChatGPT, Grok, Fable, Opus, or future models.
+The reusable Python package, deterministic planner, adapter protocol, fault-injectable
+mock, manual capture workflow, validated event ledger, scoring, and reporting are
+implemented. Defaults use **synthetic probes and mock targets**, with no model calls.
 
-This is not an intelligence benchmark and cannot prove backend identity. It is a behavioral fingerprinting and measurement method.
+**Native Codex, Claude Code, and Grok Build automation is not implemented here yet.**
+All can be measured through manual prompt export and capture now. The adapter boundary
+is ready for native implementations without changing probe or scoring semantics.
+The [multi-harness proof](https://github.com/xormania/multi-harness-proof) remains the
+reference for native transport and identity-observation mechanics.
 
-## Core concept
+## Install and verify
 
-Instead of asking whether a model knows one obscure fact, test a sequence of **dated, obscure, relational facts from a constrained domain**.
-
-A useful probe tends to be:
-
-- **recent** enough to separate knowledge frontiers;
-- **obscure** enough that recognition is informative;
-- **relational** enough that guessing one entity name is insufficient;
-- **source-grounded** so the stratum date can be justified;
-- paired with **negative controls** to detect confabulation.
-
-The output is a profile across strata, not a binary pass/fail.
-
-## Harnesses and models are independent
-
-Do not collapse "Claude Code/Fable" or "Codex/ChatGPT" into one identity.
-
-The framework records separately:
-
-- harness requested;
-- harness version/build;
-- model requested;
-- reasoning/effort requested;
-- model actually observed, when native evidence exists;
-- reasoning/effort actually observed;
-- route/backend identity if exposed.
-
-**Requested is not observed.**
-
-The confirmed [multi-harness proof](https://github.com/xormania/multi-harness-proof) demonstrated why this matters: native telemetry can expose settings different from the launch request.
-
-See [TARGETS.md](TARGETS.md).
-
-## Universal execution
-
-The baseline adapter is **manual**.
-
-That is intentional: any new harness/model combination can be tested immediately without framework code changes.
-
-Optional native adapters can later automate session creation, model selection, clean workspaces, prompt delivery, response capture, and native identity evidence for specific harnesses.
-
-Probe packs do not depend on adapters.
-
-## Repository structure
-
-- `ARCHITECTURE.md` — framework layers and improvement loop.
-- `TARGETS.md` — harness × model × runtime abstraction.
-- `PROTOCOL.md` — controlled execution and scoring.
-- `TELEMETRY.md` — requested-vs-observed telemetry and analysis dimensions.
-- `schemas/probe-pack.schema.example.json` — generic pack structure.
-- `schemas/target.schema.example.json` — generic target structure.
-- `schemas/telemetry.schema.example.json` — append-only trial telemetry.
-- `targets.example.json` — example targets for current harness/model combinations.
-- `examples/` — worked probe packs.
-- `results/` — optional raw JSONL run records.
-- `stratify.py` — zero-dependency prompt, matrix, target, and telemetry helper.
-- `EVIDENCE.md` — source evidence for the first worked pack.
-
-## Quick start
-
-List probes:
+Python 3.10 or later:
 
 ```bash
-python3 stratify.py list
+python -m venv .venv
+# Activate .venv using your shell's normal activation command.
+python -m pip install -r requirements-test.txt -e .
+python scripts/check.py
+python scripts/package_smoke.py
 ```
 
-List enabled targets:
+`check.py` runs compilation, unit tests, behavior tests, adapter-contract tests,
+branch-enabled coverage with a **90% gate**, and example validation. The packaging
+check builds a wheel and executes it from outside the source tree.
+
+For runtime use without test dependencies: `python -m pip install -e .`.
+The runtime uses `jsonschema` for Draft 2020-12 validation; no model SDK is required.
+
+## Run the complete mock pipeline
 
 ```bash
-python3 stratify.py targets
+python stratify.py validate
+python stratify.py matrix --repetitions 2 --seed 42
+python stratify.py run --output runs/demo --repetitions 2 --seed 42
+python stratify.py report runs/demo/events.jsonl
 ```
 
-Inspect one target:
+The installed `kst` command and `python -m kst` expose the same CLI.
+Every run directory must be new. A mock answer is labeled `mock`, never a model result.
+Execution success is not a knowledge score: observations remain unscored until reviewed.
+
+## Use any harness and model
+
+Targets are data, not an allowlist. `targets.example.json` retains the initial manual
+examples for Claude Code/Fable, Claude Code/Opus, Codex/ChatGPT, and Grok Build/Grok.
+Those are descriptive labels, not promises that a particular native model ID exists.
+Add another target with the model identifier supported by its actual runtime.
 
 ```bash
-python3 stratify.py target claude-code-fable
+python stratify.py --targets targets.example.json targets
+python stratify.py --pack path/to/pack.json --targets targets.example.json \
+  export --output runs/blind-battery --repetitions 3 --seed 42
 ```
 
-Expand a randomized experiment matrix:
+`blind/` contains prompts with opaque filenames. `manifest.json` is controller-only
+mapping data. Give the target **one prompt in one fresh session**, not the manifest,
+answer keys, source pack, previous answers, or telemetry. This protects the payload;
+it is not an operating-system sandbox around a future native harness.
+
+Capture an answer using the pack/probe and target IDs from your private manifest:
 
 ```bash
-python3 stratify.py matrix --repetitions 3 --seed 42
+python stratify.py --pack path/to/pack.json --targets targets.example.json \
+  record PROBE_ID --target-id TARGET_ID --run-id RUN_ID \
+  --output results/RUN_ID.jsonl < response.txt
 ```
 
-Print one blinded probe:
+Use `--prompt-file actual-prompt.txt` when the submitted wording differs. Responses
+are preserved exactly, including whitespace. Omitted isolation observations remain
+`unknown`; configured intent is never promoted to observed isolation.
+
+The command prints a trial ID. Record or revise its assessment separately:
 
 ```bash
-python3 stratify.py prompt KST-CODEX-2026-07-PUSHED
+python stratify.py score results/RUN_ID.jsonl TRIAL_ID 2 \
+  --scorer xor --rubric-version manual-v1 --assessment recognized
+python stratify.py report results/RUN_ID.jsonl
 ```
 
-Create run metadata for one target:
+That example is for a positive probe. A fully rejected negative control uses
+`--assessment rejected`. Score revisions append events and retain earlier judgments.
+See `python stratify.py record --help` for explicit native identity, token, latency,
+and isolation fields.
 
-```bash
-python3 stratify.py new-run --target-id claude-code-fable
-```
+## What is separated
 
-Record a response append-only:
+| Concern | Implementation |
+| --- | --- |
+| Validation, identities, reproducible experiment plans | `kst/core.py` |
+| Narrow target-facing request and adapter contract | `kst/adapters.py` |
+| Fresh-trial orchestration, failure classification, cleanup | `kst/engine.py` |
+| Append-only, hash-linked events and score revisions | `kst/telemetry.py` |
+| Per-probe reports without mixing mock/manual/live observations | `kst/analysis.py` |
+| CLI and manual import/export | `kst/cli.py` |
+| Machine-enforced JSON Schemas and synthetic fixtures | `kst/data/` |
 
-```bash
-printf '%s' 'MODEL RESPONSE HERE' | \
-python3 stratify.py record KST-CODEX-2026-07-PUSHED \
-  --target-id claude-code-fable \
-  --run-id RUN_ID \
-  --output results/RUN_ID.jsonl
-```
+## Testing and CI
 
-If native evidence exposes the actual backend, record it separately:
+The default suite is offline. Unit tests cover validation, identity, planning, and
+storage. Behavior tests exercise CLI capture, export, full mock runs, scoring, reports,
+and failure recovery. Adapter-contract tests specify the boundary future integrations
+must satisfy using offline doubles.
 
-```bash
-printf '%s' 'MODEL RESPONSE HERE' | \
-python3 stratify.py record KST-CODEX-2026-07-PUSHED \
-  --target-id grok-build-grok \
-  --run-id RUN_ID \
-  --output results/RUN_ID.jsonl \
-  --observed-model grok-4.6 \
-  --observed-reasoning xhigh \
-  --observed-source native_telemetry
-```
+GitHub Actions runs Python 3.10, 3.12, 3.13, and 3.14 on Linux, plus Python 3.13 on
+Windows and macOS. It checks coverage and packaging and retains JUnit/coverage reports,
+including failures. Action revisions and direct test dependencies are pinned.
+No native harness, provider credentials, or paid calls are needed by CI.
 
-## Critical isolation rule
+[Testing](TESTING.md) · [Architecture](ARCHITECTURE.md) · [Adapter contract](ADAPTERS.md) ·
+[Telemetry](TELEMETRY.md) · [Contributing](CONTRIBUTING.md) ·
+[Migration notes](docs/MIGRATION-0.2.md) · [Validation record](VALIDATION.md)
 
-**Do not run the target model from inside this repository.**
+## Historical probe material
 
-Agentic harnesses may inspect local files and silently read answer keys.
-
-Generate/copy blinded prompts, then execute them in a clean environment with web/search/tools/files/project context disabled as far as the target permits.
-
-## Telemetry first
-
-Each probe trial should emit one append-only record preserving:
-
-- exact prompt and response;
-- probe pack/version;
-- target ID;
-- harness requested;
-- model/reasoning requested;
-- harness/model/reasoning actually observed, if exposed;
-- evidence source for observed identity;
-- isolation state;
-- latency/token data when available;
-- score/calibration;
-- comparison group/change event.
-
-Preserve raw responses and raw identity evidence so future analysis can rescore old runs.
-
-## Probe lifecycle
-
-```text
-draft → experimental → active → contaminated → retired
-```
-
-Probe content is disposable. The measurement framework and telemetry are durable.
-
-## First worked example
-
-The first pack grew from community use of **"Tibo the reset guy"** as an accidental routing fingerprint.
-
-That material is only a worked example. It does not define the framework or restrict future domains.
+The original Codex-reset pack and `EVIDENCE.md` are retained as historical construction
+material. Their source claims and dates have **not been reverified in this framework
+refactor**. They are not the default fixtures and do not establish empirical results.
+Future empirical packs need their own evidence review and contamination tracking.

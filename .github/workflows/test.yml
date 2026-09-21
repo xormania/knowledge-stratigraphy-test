@@ -1,20 +1,56 @@
-name: test
+name: framework-ci
 
 on:
   push:
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: framework-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  unit:
-    runs-on: ubuntu-latest
+  offline-tests:
+    name: offline / ${{ matrix.os }} / Python ${{ matrix.python }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - {os: ubuntu-latest, python: '3.10'}
+          - {os: ubuntu-latest, python: '3.12'}
+          - {os: ubuntu-latest, python: '3.13'}
+          - {os: ubuntu-latest, python: '3.14'}
+          - {os: windows-latest, python: '3.13'}
+          - {os: macos-latest, python: '3.13'}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          python-version: "3.12"
-      - run: python -m unittest discover -s tests -v
-      - run: python stratify.py targets
-      - run: python stratify.py matrix --repetitions 1 --seed 42 --json > /tmp/matrix.json
+          persist-credentials: false
+      - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: ${{ matrix.python }}
+          cache: pip
+          cache-dependency-path: |
+            pyproject.toml
+            requirements-test.txt
+      - name: Install pinned test toolchain
+        run: python -m pip install -r requirements-test.txt -e .
+      - name: Unit, behavior, contract tests and coverage gate
+        run: python scripts/check.py
+      - name: Build and exercise installed wheel
+        run: python scripts/package_smoke.py
+      - name: Preserve test evidence, including failures
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: test-evidence-${{ matrix.os }}-${{ matrix.python }}
+          path: |
+            junit.xml
+            coverage.xml
+          retention-days: 14
+          if-no-files-found: warn
