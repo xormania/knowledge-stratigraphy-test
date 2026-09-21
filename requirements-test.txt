@@ -1,6 +1,6 @@
-# Direct dependencies pinned to the locally exercised toolchain.
+# Direct dependencies pinned to the reviewed test toolchain.
 jsonschema==4.26.0
-pytest==9.0.2
-pytest-cov==7.0.0
+pytest==9.1.1
+pytest-cov==7.1.0
 coverage==7.16.1
-setuptools==82.0.1
+setuptools==84.0.0
