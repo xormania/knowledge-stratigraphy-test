@@ -1,6 +1,6 @@
 # Direct dependencies pinned to the locally exercised toolchain.
 jsonschema==4.26.0
 pytest==9.0.2
-pytest-cov==7.0.0
+pytest-cov==7.1.0
 coverage==7.16.1
 setuptools==82.0.1
