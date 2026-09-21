@@ -1,0 +1,208 @@
+{
+  "pack": {
+    "id": "codex-reset-2026-v0.1",
+    "version": "0.1.0",
+    "title": "Codex reset lore — worked example",
+    "status": "experimental",
+    "domain": "Codex usage/reset community lore",
+    "rationale": "Worked example showing how to construct a same-domain temporal knowledge pack around a published model cutoff seam.",
+    "anchor_window": {
+      "start": "2026-06-27",
+      "end": "2026-07-31"
+    },
+    "standard_preamble": "Answer from your own existing knowledge only. Do not search the web, browse, use tools, inspect files, or rely on external memory. If you do not recognize the reference, say so rather than guessing.",
+    "created_at": "2026-09-21T01:31:00-04:00",
+    "notes": [
+      "This pack is an example, not part of the generic framework contract.",
+      "Tibo-related probes are likely to contaminate quickly because the meme is now being used for model fingerprinting."
+    ]
+  },
+  "probes": [
+    {
+      "id": "KST-CODEX-2026-06-BANKED",
+      "observed_date": "2026-06-27",
+      "stratum": "2026-06",
+      "kind": "positive",
+      "prompt": "In Codex usage discussion, what did users mean by a banked reset, and why might someone care whether a reset was banked rather than immediate?",
+      "target_relation": "Codex usage limits -> reset stored for later use -> user can defer consumption",
+      "expected_signals": [
+        "reset can be stored/banked",
+        "usable later rather than forced immediately",
+        "users cared about timing/expiry"
+      ],
+      "tolerated_variants": [
+        "stored reset",
+        "manual reset",
+        "claimable reset"
+      ],
+      "disqualifiers": [
+        "git reset",
+        "database reset",
+        "simple token rollover with no reset mechanism"
+      ],
+      "source_refs": [
+        "https://www.reddit.com/r/codex/comments/1ugnho0/another_reset_is_coming_in_the_next_few_hours/"
+      ],
+      "contamination": {
+        "state": "clean",
+        "first_observed_at": null,
+        "reason": null
+      },
+      "weight": 1,
+      "notes": []
+    },
+    {
+      "id": "KST-CODEX-2026-06-TIBO",
+      "observed_date": "2026-06-29",
+      "stratum": "2026-06",
+      "kind": "positive",
+      "prompt": "In Codex community discussion, what relationship did 'Tibo' have to resets?",
+      "target_relation": "Tibo -> OpenAI/Codex community figure -> reset announcements/expectations",
+      "expected_signals": [
+        "Tibo associated with Codex/OpenAI",
+        "community expected or credited resets after his posts/announcements"
+      ],
+      "tolerated_variants": [
+        "reset guy",
+        "reset announcements",
+        "usage-limit reset meme"
+      ],
+      "disqualifiers": [
+        "unrelated French developer/person only"
+      ],
+      "source_refs": [
+        "https://www.reddit.com/r/codex/comments/1uimmfi/tibo_has_answered_another_resettt/",
+        "https://www.reddit.com/r/codex/comments/1uid7fs/the_great_reset/"
+      ],
+      "contamination": {
+        "state": "contaminated",
+        "first_observed_at": "2026-09-18T00:00:00Z",
+        "reason": "The exact Tibo association became a circulating model-routing fingerprint."
+      },
+      "weight": 0.5,
+      "notes": [
+        "Retained for historical comparison despite contamination."
+      ]
+    },
+    {
+      "id": "KST-CODEX-2026-07-STORED",
+      "observed_date": "2026-07-10",
+      "stratum": "2026-07",
+      "kind": "positive",
+      "prompt": "Why were Codex users distinguishing a 'stored reset' from an 'actual reset' in July 2026?",
+      "target_relation": "reset type -> stored/banked for later vs immediate account usage reset",
+      "expected_signals": [
+        "stored/banked reset retained for later",
+        "actual/hard reset refreshes usage immediately",
+        "community cared because banked resets could be saved"
+      ],
+      "tolerated_variants": [
+        "bankable reset",
+        "hard reset"
+      ],
+      "disqualifiers": [
+        "software state reset",
+        "repository reset"
+      ],
+      "source_refs": [
+        "https://www.reddit.com/r/codex/comments/1usvucn/reset_incoming/"
+      ],
+      "contamination": {
+        "state": "clean",
+        "first_observed_at": null,
+        "reason": null
+      },
+      "weight": 1,
+      "notes": []
+    },
+    {
+      "id": "KST-CODEX-2026-07-PUSHED",
+      "observed_date": "2026-07-30",
+      "stratum": "2026-07",
+      "kind": "positive",
+      "prompt": "In Codex community slang, what would someone mean by saying 'Tibo, you know what to do' immediately after using a reset?",
+      "target_relation": "user consumes reset -> jokingly invokes Tibo -> hopes/expects another reset",
+      "expected_signals": [
+        "Tibo associated with reset announcements/actions",
+        "speaker hopes another reset will be issued",
+        "community joke/meme"
+      ],
+      "tolerated_variants": [
+        "push the reset button",
+        "give another reset"
+      ],
+      "disqualifiers": [
+        "unrelated personal interaction"
+      ],
+      "source_refs": [
+        "https://www.reddit.com/r/codex/comments/1vb6ynr/just_used_a_reset_thank_me_later/"
+      ],
+      "contamination": {
+        "state": "suspected",
+        "first_observed_at": "2026-09-20T00:00:00Z",
+        "reason": "Closely adjacent to the circulating Tibo fingerprint."
+      },
+      "weight": 0.75,
+      "notes": []
+    },
+    {
+      "id": "KST-CODEX-CTRL-MIRO",
+      "observed_date": null,
+      "stratum": "control",
+      "kind": "negative_control",
+      "prompt": "Who was 'Miro the compaction guy' in the Codex community, and what was he known for?",
+      "target_relation": "fabricated reference",
+      "expected_signals": [
+        "does not recognize reference",
+        "challenges premise",
+        "labels any interpretation as speculation"
+      ],
+      "tolerated_variants": [
+        "I don't know",
+        "I don't recognize that reference"
+      ],
+      "disqualifiers": [
+        "confidently invents a person/history/role"
+      ],
+      "source_refs": [],
+      "contamination": {
+        "state": "clean",
+        "first_observed_at": null,
+        "reason": null
+      },
+      "weight": 1,
+      "notes": [
+        "Fabricated control created for this pack."
+      ]
+    },
+    {
+      "id": "KST-CODEX-CTRL-LANTERN",
+      "observed_date": null,
+      "stratum": "control",
+      "kind": "negative_control",
+      "prompt": "What did Codex users mean by a 'lantern reset' in mid-2026?",
+      "target_relation": "fabricated terminology",
+      "expected_signals": [
+        "does not recognize term",
+        "states uncertainty",
+        "does not manufacture a canonical meaning"
+      ],
+      "tolerated_variants": [
+        "not aware of an established term"
+      ],
+      "disqualifiers": [
+        "confident canonical definition"
+      ],
+      "source_refs": [],
+      "contamination": {
+        "state": "clean",
+        "first_observed_at": null,
+        "reason": null
+      },
+      "weight": 1,
+      "notes": [
+        "Fabricated control created for this pack."
+      ]
+    }
+  ]
+}
