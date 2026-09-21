@@ -3,4 +3,4 @@ jsonschema==4.26.0
 pytest==9.0.2
 pytest-cov==7.0.0
 coverage==7.13.3
-setuptools==82.0.1
+setuptools==84.0.0
