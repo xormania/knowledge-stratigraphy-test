@@ -2,32 +2,42 @@
 
 ## Objective
 
-Estimate a model route's **effective knowledge frontier** using dated, same-domain, closed-book probes.
+Estimate and compare a target's **effective knowledge frontier** using dated, same-domain, closed-book probes.
 
-This protocol is designed for comparisons such as:
+A target is:
 
-- Claude Code route A vs route B;
-- Claude Code vs Claude.ai;
-- before vs after a suspected silent model swap;
-- pinned model ID vs product alias;
-- old client vs updated client when routing behavior may differ.
+```text
+Harness × Requested Model × Runtime
+```
 
-It does **not** establish backend identity. It measures behavioral evidence consistent with different latent knowledge.
+The protocol supports comparisons such as:
+
+- same harness, different requested models;
+- same requested model, different harnesses;
+- same harness/model before and after a client update;
+- same selected model label before and after suspected silent routing;
+- requested model ID vs product alias;
+- different reasoning/effort settings;
+- future harnesses and future models.
+
+The method does **not** establish backend identity. It measures behavioral evidence consistent with different effective knowledge.
 
 ## 1. Isolation
 
 For every trial:
 
-- use a fresh conversation/session;
+- use a fresh conversation/session where practical;
 - disable web search and browsing;
 - disable or avoid MCP/tools;
 - do not attach files;
-- do not run inside this repository or any directory containing the answer key;
+- do not run the target inside this repository or any directory containing answer keys;
 - avoid project-level instructions that mention probe subjects;
-- avoid persistent memory where the surface permits;
+- avoid persistent memory where the harness permits;
 - do not mention the hypothesized model identity.
 
 The target should receive only the probe prompt.
+
+Record isolation conditions rather than assuming them.
 
 ## 2. Standard preamble
 
@@ -35,15 +45,15 @@ Every positive and control probe should begin with the same instruction:
 
 > Answer from your own existing knowledge only. Do not search the web, browse, use tools, inspect files, or rely on external memory. If you do not recognize the reference, say so rather than guessing.
 
-Do not tell the model the date of the event unless the probe itself requires it.
+Do not tell the model the event date unless the probe itself requires it.
 
 ## 3. Cold-session rule
 
 One probe per fresh session is preferred.
 
-Why: once the model sees "Tibo", "reset", "Codex", or an explanation of one layer, later probes become contaminated by conversational inference.
+Once a target sees an explanation of one layer, later probes can become contaminated by conversational inference.
 
-If cost or friction requires batching, randomize order and treat results as lower-confidence.
+If cost or friction requires batching, randomize order and record that the trials share context.
 
 ## 4. Repetitions
 
@@ -52,25 +62,52 @@ Recommended minimum:
 - 3 cold trials per probe per target;
 - 5 is better for a small pack.
 
-Record every miss. Do not cherry-pick the most impressive completion.
+Record every result. Do not cherry-pick completions.
 
-## 5. Metadata
+## 5. Target metadata
 
-Record at least:
+Record separately:
+
+### Requested
+
+- harness name;
+- harness version if explicitly requested/pinned;
+- requested model label/ID;
+- requested provider/family;
+- requested reasoning/effort;
+- adapter and transport.
+
+### Observed
+
+When native evidence exists, also record:
+
+- actual harness version/build;
+- actual model label/ID;
+- actual reasoning/effort;
+- route/backend identity if exposed;
+- evidence source;
+- raw identity evidence.
+
+**Requested is not observed.**
+
+If effective identity cannot be established, record it as unknown.
+
+## 6. Trial metadata
+
+Also record:
 
 - timestamp with timezone;
-- product surface;
-- client version if applicable;
-- selected model label;
-- displayed model ID if available;
-- account/plan class without personal identifiers;
-- tool/search state;
-- probe ID;
+- target ID;
+- pack ID/version;
+- probe ID/order;
+- exact prompt;
 - raw response;
-- human score;
-- scoring notes.
+- latency/token usage when available;
+- isolation state;
+- comparison group/change event;
+- human score and scoring notes.
 
-## 6. Scoring
+## 7. Scoring
 
 ### Positive probe
 
@@ -86,7 +123,7 @@ There is meaningful correct knowledge but a core relationship is missing, uncert
 
 The model says it does not know, identifies a different referent, or fabricates an incompatible explanation.
 
-An honest "I don't know" is a zero on recall but is *good calibration*.
+An honest "I don't know" is a zero on recall but good calibration.
 
 ### Negative control
 
@@ -100,9 +137,9 @@ It offers a possible interpretation but clearly labels it as inference/speculati
 
 **0 — confabulation**
 
-It confidently invents a community history, person, event, or relationship.
+It confidently invents a history, person, event, term, or relationship.
 
-## 7. Frontier estimation
+## 8. Frontier estimation
 
 Do not define the frontier as "latest probe with score 2" after one run.
 
@@ -112,7 +149,7 @@ A simple descriptive frontier is:
 
 > the latest layer at or before which recognition remains consistently high, followed by sustained lower recognition in later layers.
 
-With a tiny pack, report the profile directly instead of pretending to statistical precision.
+With a small pack, report the profile directly instead of pretending to statistical precision.
 
 Example:
 
@@ -125,19 +162,29 @@ Target A
 controls 3/3 rejected
 ```
 
-## 8. Comparison logic
+## 9. Comparison logic
 
-Evidence for a routing/model knowledge difference becomes more interesting when all are true:
+Evidence for an effective-knowledge difference becomes more interesting when all are true:
 
 1. the same later strata separate two targets repeatedly;
 2. earlier strata are recognized by both;
-3. fabricated controls are rejected by both, or especially by the route with later recall;
+3. fabricated controls are rejected rather than confidently invented;
 4. the effect survives fresh sessions;
-5. the effect tracks a surface/client/account change reproducibly.
+5. the effect tracks a model, harness, version, reasoning, or routing change reproducibly.
+
+When trying to isolate one variable, hold the others constant where possible.
+
+Examples:
+
+```text
+Harness A × Model X  vs Harness A × Model Y   -> model-oriented comparison
+Harness A × Model X  vs Harness B × Model X   -> harness-oriented comparison
+Harness A × Model X v1 vs same target v2       -> version/routing comparison
+```
 
 A single famous probe is weak evidence because it may have entered system prompts, post-training, evaluation sets, or online discussion.
 
-## 9. Confounds
+## 10. Confounds
 
 Known confounds include:
 
@@ -150,33 +197,43 @@ Known confounds include:
 - model aliases changing backend;
 - client-dependent routing;
 - prompt leakage;
-- publication of this repository itself.
+- local repository/context leakage;
+- publication of the probes themselves.
 
-Knowledge stratigraphy intentionally does not try to distinguish all of these. It detects **effective latent/runtime knowledge differences** first; causal attribution is a separate experiment.
+Knowledge Stratigraphy does not initially try to distinguish all of these. It detects **effective latent/runtime knowledge differences** first; causal attribution is a separate experiment.
 
-## 10. Probe retirement
+## 11. Probe retirement
 
 A probe should be marked contaminated when:
 
 - it becomes a widely circulated model-detection question;
 - model vendors or popular accounts discuss the exact wording;
-- it appears in benchmark corpora or evaluation repositories;
+- it appears in benchmark/evaluation corpora;
 - repeated public testing plausibly makes the phrase itself training/post-training material.
 
-Retain contaminated probes for historical comparisons, but do not treat them as strong evidence in new experiments.
+Retain contaminated probes for historical comparisons, but reduce or remove their weight in new experiments.
 
-## 11. Best probe shape
+## 12. Best probe shape
 
-Prefer probes requiring a small graph:
-
-```text
-person/event -> community -> behavior -> consequence
-```
-
-Example shape:
+Prefer probes requiring a small relation graph:
 
 ```text
-Tibo -> Codex -> usage resets -> "pushed the button"
+entity/event -> domain/community -> behavior -> consequence
 ```
 
-This is stronger than asking for a bare name because relational recall is harder to satisfy through a lucky entity association.
+This is stronger than bare-name recognition because relational recall is harder to satisfy through a lucky entity association.
+
+## 13. Execution universality
+
+The protocol does not require a native adapter.
+
+A **manual adapter** is always valid:
+
+1. generate a blinded prompt;
+2. open the chosen harness/model in a clean session;
+3. submit the prompt;
+4. capture the raw response;
+5. capture any available native identity evidence;
+6. append the trial telemetry.
+
+Native adapters are an optimization for repeatability and richer evidence, not a prerequisite for supporting a harness/model.
