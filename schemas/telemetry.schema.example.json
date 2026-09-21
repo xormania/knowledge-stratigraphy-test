@@ -1,0 +1,86 @@
+{
+  "schema_version": "1.0.0",
+  "description": "One JSON object per probe trial; intended for JSONL append-only logging",
+  "trial": {
+    "trial_id": "uuid|string",
+    "run_id": "uuid|string",
+    "timestamp": "ISO-8601",
+    "pack_id": "string",
+    "pack_version": "semver",
+    "probe_id": "string",
+    "probe_order": 1,
+    "session_fresh": true,
+    "environment": {
+      "provider": "string",
+      "surface": "string",
+      "client": "string|null",
+      "client_version": "string|null",
+      "selected_model_label": "string|null",
+      "displayed_model_id": "string|null",
+      "account_class": "string|null",
+      "region": "string|null"
+    },
+    "isolation": {
+      "web_enabled": false,
+      "tools_enabled": false,
+      "files_available": false,
+      "project_context_available": false,
+      "persistent_memory_enabled": "true|false|unknown",
+      "system_context_known": "true|false|unknown",
+      "notes": [
+        "string"
+      ]
+    },
+    "prompt": {
+      "exact_text": "string",
+      "preamble_id": "string|null"
+    },
+    "response": {
+      "raw_text": "string",
+      "latency_ms": "number|null",
+      "stop_reason": "string|null",
+      "token_usage": {
+        "input": "number|null",
+        "output": "number|null"
+      }
+    },
+    "scoring": {
+      "score": "0|1|2|null",
+      "confidence": "low|medium|high|null",
+      "recognized_signals": [
+        "string"
+      ],
+      "missing_signals": [
+        "string"
+      ],
+      "disqualifiers_hit": [
+        "string"
+      ],
+      "calibration_quality": "poor|mixed|good|null",
+      "scorer": "human|rule|model-assisted|null",
+      "notes": [
+        "string"
+      ]
+    },
+    "routing_fingerprint": {
+      "route_label": "string|null",
+      "comparison_group": "string|null",
+      "suspected_change_event": "string|null"
+    }
+  },
+  "run_summary": {
+    "run_id": "uuid|string",
+    "started_at": "ISO-8601",
+    "ended_at": "ISO-8601|null",
+    "pack_id": "string",
+    "pack_version": "semver",
+    "route_label": "string|null",
+    "trial_count": 0,
+    "aggregate": {
+      "score_mean": "number|null",
+      "positive_recognition_rate": "number|null",
+      "negative_control_rejection_rate": "number|null",
+      "latest_consistently_recognized_stratum": "string|null"
+    }
+  }
+}
