@@ -1,30 +1,53 @@
 {
-  "schema_version": "1.0.0",
-  "description": "One JSON object per probe trial; intended for JSONL append-only logging",
+  "schema_version": "1.1.0",
+  "description": "One append-only probe trial. Requested target and observed runtime identity are intentionally separate.",
   "trial": {
     "trial_id": "uuid|string",
     "run_id": "uuid|string",
     "timestamp": "ISO-8601",
-    "pack_id": "string",
-    "pack_version": "semver",
-    "probe_id": "string",
-    "probe_order": 1,
-    "session_fresh": true,
-    "environment": {
-      "provider": "string",
-      "surface": "string",
-      "client": "string|null",
-      "client_version": "string|null",
-      "selected_model_label": "string|null",
-      "displayed_model_id": "string|null",
-      "account_class": "string|null",
-      "region": "string|null"
+    "pack": {
+      "id": "string",
+      "version": "semver",
+      "probe_id": "string",
+      "probe_order": "number|null"
+    },
+    "target": {
+      "target_id": "string|null",
+      "harness_requested": {
+        "name": "string",
+        "mode": "string|null",
+        "version": "string|null",
+        "executable": "string|null"
+      },
+      "model_requested": {
+        "provider": "string|null",
+        "family": "string|null",
+        "label": "string|null",
+        "model_id": "string|null",
+        "reasoning": "string|null"
+      },
+      "runtime": {
+        "adapter": "string|null",
+        "transport": "string|null"
+      }
+    },
+    "observed": {
+      "harness_version": "string|null",
+      "harness_build": "string|null",
+      "model_label": "string|null",
+      "model_id": "string|null",
+      "reasoning": "string|null",
+      "route_or_backend": "string|null",
+      "evidence_source": "native_telemetry|transcript|api|harness_output|manual|unknown|null",
+      "evidence_raw": "string|null"
     },
     "isolation": {
-      "web_enabled": false,
-      "tools_enabled": false,
-      "files_available": false,
-      "project_context_available": false,
+      "session_fresh": "true|false|unknown",
+      "clean_working_directory": "true|false|unknown",
+      "web_enabled": "true|false|unknown",
+      "tools_enabled": "true|false|unknown",
+      "files_available": "true|false|unknown",
+      "project_context_available": "true|false|unknown",
       "persistent_memory_enabled": "true|false|unknown",
       "system_context_known": "true|false|unknown",
       "notes": [
@@ -62,25 +85,12 @@
         "string"
       ]
     },
-    "routing_fingerprint": {
-      "route_label": "string|null",
-      "comparison_group": "string|null",
-      "suspected_change_event": "string|null"
-    }
-  },
-  "run_summary": {
-    "run_id": "uuid|string",
-    "started_at": "ISO-8601",
-    "ended_at": "ISO-8601|null",
-    "pack_id": "string",
-    "pack_version": "semver",
-    "route_label": "string|null",
-    "trial_count": 0,
-    "aggregate": {
-      "score_mean": "number|null",
-      "positive_recognition_rate": "number|null",
-      "negative_control_rejection_rate": "number|null",
-      "latest_consistently_recognized_stratum": "string|null"
+    "comparison": {
+      "group": "string|null",
+      "suspected_change_event": "string|null",
+      "notes": [
+        "string"
+      ]
     }
   }
 }
